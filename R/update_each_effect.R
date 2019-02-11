@@ -15,9 +15,13 @@ update_each_effect <- function (X, Y, s, estimate_prior_variance=FALSE, optimV_m
       s$Xr = s$Xr - compute_Xb(X, (s$alpha[l,] * s$mu[l,]))
       #compute residuals
       R = Y - s$Xr
+      if (optimV_method=='EM' & l==1){
+        res <- single_effect_regression(R,X,s$V[l],s$sigma2,s$pi)
+      } else {
+        res <- single_effect_regression(R,X,s$V[l],s$sigma2,s$pi,s,
+                                        estimate_prior_variance, optimV_method)
+      }
 
-      res <- single_effect_regression(R,X,s$V[l],s$sigma2,s$pi,s,
-                                      estimate_prior_variance, optimV_method)
 
       # Update the variational estimate of the posterior mean.
       s$mu[l,] <- res$mu

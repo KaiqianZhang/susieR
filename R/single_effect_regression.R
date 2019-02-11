@@ -35,12 +35,11 @@ single_effect_regression = function(Y,X,V,residual_variance=1,prior_weights=NULL
       V = est_V_EM(s)
     } else if (optimV_method=='uniroot'){
       V = est_V_uniroot(betahat, shat2, prior_weights)
+      if(loglik(0,betahat,shat2,prior_weights) >= loglik(V,betahat,shat2,prior_weights)){
+        V=0 # set V exactly 0 if that beats the numerical value
+      }
     } else {
       stop('Please choose an optimization method for estimating prior variance: either EM or uniroot.')
-    }
-
-    if(loglik(0,betahat,shat2,prior_weights) >= loglik(V,betahat,shat2,prior_weights)){
-      V=0 # set V exactly 0 if that beats the numerical value
     }
   }
 
