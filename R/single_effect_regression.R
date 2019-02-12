@@ -23,23 +23,17 @@
 #' @importFrom stats uniroot
 #' @importFrom Matrix colSums
 #'
-single_effect_regression = function(Y,X,V,residual_variance=1,prior_weights=NULL, s=NULL, optimize_V=FALSE, optimV_method='EM'){
+single_effect_regression = function(Y,X,V,residual_variance=1,prior_weights=NULL, optimize_V=FALSE, optimV_method='EM'){
   Xty = compute_Xty(X, Y)
   betahat = (1/attr(X, "d")) * Xty
   shat2 = residual_variance/attr(X, "d")
   if (is.null(prior_weights))
     prior_weights = rep(1/ncol(X), ncol(X))
 
-  if(optimize_V){
-    if(optimV_method=='EM'){
-      V = est_V_EM(s)
-    } else if (optimV_method=='uniroot'){
-      V = est_V_uniroot(betahat, shat2, prior_weights)
-      if(loglik(0,betahat,shat2,prior_weights) >= loglik(V,betahat,shat2,prior_weights)){
-        V=0 # set V exactly 0 if that beats the numerical value
-      }
-    } else {
-      stop('Please choose an optimization method for estimating prior variance: either EM or uniroot.')
+  if(optimV_method=='uniroot'){
+    V = est_V_uniroot(betahat, shat2, prior_weights)
+    if(loglik(0,betahat,shat2,prior_weights) >= loglik(V,betahat,shat2,prior_weights)){
+      V=0 # set V exactly 0 if that beats the numerical value
     }
   }
 
@@ -60,14 +54,12 @@ single_effect_regression = function(Y,X,V,residual_variance=1,prior_weights=NULL
   # BF for single effect model
   lbf_model = maxlbf + log(weighted_sum_w)
   loglik = lbf_model + sum(dnorm(Y,0,sqrt(residual_variance),log=TRUE))
+  if(optimV_method=='EM'){
+    V = sum(alpha*post_mean2)
+  }
   return(list(alpha=alpha,mu=post_mean,mu2 = post_mean2,lbf=lbf,lbf_model=lbf_model,V=V,loglik=loglik))
 }
 
-#' @title estimate prior variance
-#' @keywords internal
-est_V_EM = function(s){
-  return(sum(s$alpha * s$mu2))
-}
 
 #' @title estimate prior variance
 #' @keywords internal

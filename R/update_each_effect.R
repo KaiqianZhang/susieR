@@ -18,7 +18,7 @@ update_each_effect <- function (X, Y, s, estimate_prior_variance=FALSE, optimV_m
       if (optimV_method=='EM' & l==1){
         res <- single_effect_regression(R,X,s$V[l],s$sigma2,s$pi)
       } else {
-        res <- single_effect_regression(R,X,s$V[l],s$sigma2,s$pi,s,
+        res <- single_effect_regression(R,X,s$V[l],s$sigma2,s$pi,
                                         estimate_prior_variance, optimV_method)
       }
 
